@@ -3,7 +3,11 @@ const http = require('http')
 const app = express()
 const server = http.createServer(app)
 const {Server} = require('socket.io')
-const io = new Server(server)
+const io = new Server(server , {
+    cors: {
+        origin: '*',
+      }
+})
 const cors = require('cors')
 const games = require('./game')
 const queue = require('./queue')
@@ -13,12 +17,7 @@ const port = process.env.PORT || 8000
 
 app.use(cors())
 
-app.use(function (req, res, next) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, GET, PATCH, DELETE, OPTIONS');
-    next();
-});
+
 
 
 io.on('connection' , (socket) => {
