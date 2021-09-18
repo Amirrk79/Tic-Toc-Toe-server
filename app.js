@@ -7,7 +7,7 @@ const io = new Server(server)
 const cors = require('cors')
 const games = require('./game')
 const queue = require('./queue')
-const port = 8000
+const port = process.env.PORT || 8000
         
         
 
