@@ -8,7 +8,8 @@ exports.createMatch = function createMatch(match) {
                 user2: JSON.stringify(match.player2)
             } ,
             game: Array(9).fill(null) ,
-            currentUser: null 
+            currentUser: null , 
+            currentMove: 0
         }
         games.push(game)
     }
@@ -58,6 +59,7 @@ exports.calculateGame = function calculateGame(matchId , user , moveIndex) {
     
     
     currentGame.currentUser = currentUser
+    currentGame.currentMove = currentGame.currentMove + 1
     return {
         currentGame , winner , currentUser
     }
