@@ -25,31 +25,26 @@ io.on('connection' , (socket) => {
         queue.MatchQueue(data)
         let currentQueue = queue.MatchQueue().find(queue => queue.matchId === data.matchId)
         if(currentQueue.player2.name !== null && currentQueue.player2.id !== null) {
-            games.createMatch(currentQueue)
+            games.createMatch(currentQueue , io)
             io.emit('create-match' , currentQueue)
         }
-        setTimeout(() => {
-            games.RemoveMatch(data.matchId)
-            queue.RemoveQueue(data.matchId)
-            io.emit('match-ended')
-        } , 300000)
     })
     socket.on('player-move' , (data) => {
-        games.calculateGame(data.matchId , data.user , data.index)
-        io.emit('player-moved' , games.calculateGame(data.matchId , data.user , data.index))
-        if(games.calculateGame(data.matchId , data.user , data.index).winner !== null) {
-            io.emit('end-game' , games.calculateGame(data.matchId , data.user , data.index).currentUser)
+      let newGame =  games.calculateGame(data.matchId , data.user , data.index)
+        io.emit('player-moved' , newGame)
+        if(newGame.winner !== null) {
+            io.emit('end-game' , newGame.currentUser)
         }
     })
     socket.on('delete-match' , matchId => {
         games.RemoveMatch(matchId)
         queue.RemoveQueue(matchId)
-        io.emit('match-ended')
+        io.emit('match-ended' , matchId)
     })
    
     socket.on('reset-match' , matchId => {
         games.ResetMatch(matchId)
-        io.emit('match-reseted')
+        io.emit('match-reseted' , matchId)
     })
   
     socket.on('find-match' , matchId => {

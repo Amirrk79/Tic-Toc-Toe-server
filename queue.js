@@ -17,6 +17,6 @@ exports.MatchQueue = function MatchQueue(data) {
 }
 
 exports.RemoveQueue = function RemoveQueue(matchId) {
-     queue.filter(match => match.matchId !== matchId)
-    return queue
+    let newQueue =  queue.filter(match => match.matchId !== matchId)
+    return queue = newQueue
 }

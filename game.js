@@ -1,5 +1,5 @@
 let games = []
-exports.createMatch = function createMatch(match) {
+exports.createMatch = function createMatch(match , io) {
     let matchIndex = games.findIndex(game => game.matchId === match.matchId)
     if(matchIndex === -1) {
         let game = { matchId: match.matchId , 
@@ -9,8 +9,20 @@ exports.createMatch = function createMatch(match) {
             } ,
             game: Array(9).fill(null) ,
             currentUser: null , 
-            currentMove: 0
+            currentMove: 0 , 
+            timer: () => {
+                this.time = setTimeout(() => {
+                    let newGames = games.filter(game => game.matchId !== match.matchId)
+                        io.emit('match-ended' , match.matchId)
+                      return games = newGames
+                  } , 300000)
+            } , 
+            stopTimer: () => {
+                clearTimeout(this.time)
+            } , 
+            winner: null
         }
+        game.timer()
         games.push(game)
     }
     return
@@ -18,6 +30,7 @@ exports.createMatch = function createMatch(match) {
 exports.calculateGame = function calculateGame(matchId , user , moveIndex) {
     let currentGame = games.find(game => matchId === game.matchId)
     let currentGameIndex = games.findIndex(game => game.matchId === matchId)
+    let currentMove = currentGame.currentMove + 1
     let userTurnMapper = {
         user1 : 'X',
         user2 : 'O'
@@ -60,26 +73,32 @@ exports.calculateGame = function calculateGame(matchId , user , moveIndex) {
     
     currentGame.currentUser = currentUser
     currentGame.currentMove = currentGame.currentMove + 1
+    if(winner) {
+        currentGame.winner = winner
+    }
     return {
-        currentGame , winner , currentUser
+        currentGame , winner , currentUser , currentMove 
     }
 }
 
 exports.RemoveMatch = function RemoveMatch(matchId) {
-     games.filter(game => game.matchId !== matchId)
-    return games
+   let newGames = games.filter(game => game.matchId !== matchId)
+    return games = newGames
 }
 
 exports.ResetMatch = function ResetMatch(matchId) {
    let indexOfGame = games.findIndex(game => game.matchId === matchId)
    games[indexOfGame].game = Array(9).fill(null)
+   games[indexOfGame].currentMove = 0
+   games[indexOfGame].stopTimer()
+   games[indexOfGame].timer()
+   games[indexOfGame].winner = null
    return games
 }
 
 
 exports.FindMatch = function FindMatch(matchId) {
     let matchIndex = games.findIndex(game => game.matchId === matchId)
-
     return games[matchIndex]
 }
 
